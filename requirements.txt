@@ -1,0 +1,44 @@
+# ====================================
+# LTX Video I2V - Python Dependencies
+# ====================================
+# Pin all versions for reproducibility
+
+# FastAPI and server
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.18
+
+# Pydantic for validation and settings
+pydantic==2.10.3
+pydantic-settings==2.7.0
+
+# HTTP client (async)
+httpx==0.28.1
+
+# Oracle Cloud integrations
+oracledb==2.5.2
+oci==2.140.0
+
+# Image and video processing
+Pillow==11.0.0
+opencv-python-headless==4.10.0.84
+
+# Security
+bleach==6.2.0
+python-jose[cryptography]==3.3.0
+
+# Utilities
+python-dotenv==1.0.1
+
+# RunPod SDK
+runpod==1.7.8
+
+# ML/AI dependencies (some may come from base image)
+# torch>=2.0.0  # Included in RunPod base image
+# diffusers>=0.30.0  # Will install from LTX-Video repo
+# transformers>=4.40.0  # Installed with diffusers
+# accelerate>=0.30.0  # Installed with diffusers
+
+# Optional: Monitoring (uncomment if needed)
+# prometheus-client==0.21.0
+# sentry-sdk==2.19.2

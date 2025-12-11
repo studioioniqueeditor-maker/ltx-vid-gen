@@ -1,0 +1,62 @@
+[
+  {
+    "name": "finance_intro_01",
+    "image": "/workspace/inputs/thumbnail_presenter.jpg",
+    "prompt": "Slow zoom in on the presenter, subtle head movement, natural eye blinks, professional studio lighting, 4K quality",
+    "seed": 101
+  },
+  {
+    "name": "stock_market_broll",
+    "image": "/workspace/inputs/stock_chart.jpg",
+    "prompt": "Static camera, subtle data animation effect, numbers slightly changing, professional financial broadcast style",
+    "seed": 102
+  },
+  {
+    "name": "cityscape_mumbai",
+    "image": "/workspace/inputs/mumbai_skyline.jpg",
+    "prompt": "Time-lapse motion, clouds moving slowly, traffic flowing in the distance, golden hour lighting",
+    "seed": 103
+  },
+  {
+    "name": "podcast_guest_01",
+    "image": "/workspace/inputs/guest_portrait.jpg",
+    "prompt": "Subtle breathing motion, slight head tilt, natural conversational movement, podcast studio background",
+    "seed": 104
+  },
+  {
+    "name": "money_coins_broll",
+    "image": "/workspace/inputs/coins_stack.jpg",
+    "prompt": "Coins slightly shifting, subtle light reflections, shallow depth of field, cinematic movement",
+    "seed": 105
+  },
+  {
+    "name": "office_establishing",
+    "image": "/workspace/inputs/modern_office.jpg",
+    "prompt": "Slow pan right, people walking in background blur, professional corporate atmosphere",
+    "seed": 106
+  },
+  {
+    "name": "expert_interview_02",
+    "image": "/workspace/inputs/expert_headshot.jpg",
+    "prompt": "Gentle nodding motion, natural facial expressions, speaking gestures, interview lighting setup",
+    "seed": 107
+  },
+  {
+    "name": "document_signing",
+    "image": "/workspace/inputs/contract_signing.jpg",
+    "prompt": "Hand moving to sign document, pen writing motion, focused shallow depth of field",
+    "seed": 108
+  },
+  {
+    "name": "tech_laptop_demo",
+    "image": "/workspace/inputs/laptop_screen.jpg",
+    "prompt": "Subtle screen glow animation, cursor movement hint, modern tech workspace",
+    "seed": 109
+  },
+  {
+    "name": "outro_logo_reveal",
+    "image": "/workspace/inputs/brand_logo.jpg",
+    "prompt": "Subtle scale animation, light rays emerging, professional brand reveal motion",
+    "seed": 110
+  }
+]
