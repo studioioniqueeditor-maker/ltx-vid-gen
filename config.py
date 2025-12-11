@@ -26,12 +26,13 @@ class Settings(BaseSettings):
     OCI_USER_OCID: str = Field(..., description="Oracle Cloud user OCID")
     OCI_FINGERPRINT: str = Field(..., description="API key fingerprint")
     OCI_TENANCY_OCID: str = Field(..., description="Tenancy OCID")
-    OCI_PRIVATE_KEY: str = Field(..., description="Private key content or path")
+    OCI_PRIVATE_KEY_PATH: str = Field(..., description="Private key content or path")
 
     # Oracle Database
     ORACLE_DB_USER: str = Field(..., description="Database username")
     ORACLE_DB_PASSWORD: str = Field(..., description="Database password")
     ORACLE_DB_DSN: str = Field(..., description="Database connection string")
+    ORACLE_WALLET_DIR: str = Field(..., description="Database connection string")
 
     # Webhook Configuration
     WEBHOOK_TIMEOUT: int = Field(default=30, ge=5, le=300)
@@ -114,19 +115,6 @@ class Settings(BaseSettings):
             raise ValueError(f"{info.field_name} must be a multiple of 8, got {v}")
         return v
 
-    @field_validator('OCI_PRIVATE_KEY')
-    @classmethod
-    def load_private_key(cls, v):
-        """Load private key from file if it's a path, otherwise use as-is"""
-        if v.startswith('/') or v.startswith('./'):
-            # It's a file path
-            try:
-                with open(v, 'r') as f:
-                    return f.read()
-            except FileNotFoundError:
-                raise ValueError(f"Private key file not found: {v}")
-        return v
-
     def get_api_key_list(self) -> List[str]:
         """Get list of API keys"""
         if isinstance(self.API_KEYS, list):
@@ -152,6 +140,19 @@ class Settings(BaseSettings):
         # Allow extra fields for forward compatibility
         extra = 'ignore'
 
+
+@field_validator('OCI_PRIVATE_KEY')
+@classmethod
+def load_private_key(cls, v):
+        """Load private key from file if it's a path, otherwise use as-is"""
+        if v.startswith('/') or v.startswith('./'):
+            # It's a file path
+            try:
+                with open(v, 'r') as f:
+                    return f.read()
+            except FileNotFoundError:
+                raise ValueError(f"Private key file not found: {v}")
+        return v
 
 # Global settings instance
 # This will be imported throughout the application

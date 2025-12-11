@@ -22,24 +22,25 @@ class OracleObjectStorage:
     def __init__(self):
         """Initialize OCI client with credentials from config"""
         try:
-            # Build OCI config from environment variables
+            # Use the working configuration (same as your "Signer OK" test)
             self.config = {
                 "user": settings.OCI_USER_OCID,
                 "fingerprint": settings.OCI_FINGERPRINT,
                 "tenancy": settings.OCI_TENANCY_OCID,
                 "region": settings.OCI_REGION,
-                "key_content": settings.OCI_PRIVATE_KEY
+                "key_file": settings.OCI_PRIVATE_KEY_PATH,  # ❗ critically important
             }
 
-            # Initialize Object Storage client
-            self.client = ObjectStorageClient(self.config)
+            # Do NOT use key_content. Do NOT manually load PEM.
+            # Let the OCI SDK read the file itself.
+            self.client = oci.object_storage.ObjectStorageClient(self.config)
 
-            # Storage configuration
             self.namespace = settings.OCI_NAMESPACE
-            self.bucket_name = settings.OCI_BUCKET_NAME
+            self.bucket = settings.OCI_BUCKET_NAME
+            self.bucket_name = self.bucket
             self.region = settings.OCI_REGION
 
-            print(f"✓ Oracle Object Storage initialized (bucket: {self.bucket_name})")
+            print("✓ Oracle Object Storage initialized")
 
         except Exception as e:
             raise StorageError(f"Failed to initialize Oracle Object Storage: {e}")

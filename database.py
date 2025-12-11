@@ -9,6 +9,7 @@ from typing import Optional, Dict, List
 from contextlib import asynccontextmanager
 from config import settings
 import hashlib
+import oracledb
 
 
 class DatabaseError(Exception):
@@ -24,6 +25,7 @@ class OracleDatabase:
         self.dsn = settings.ORACLE_DB_DSN
         self.user = settings.ORACLE_DB_USER
         self.password = settings.ORACLE_DB_PASSWORD
+        self.wallet_dir=settings.ORACLE_WALLET_DIR
 
     def init_pool(self, min_connections: int = 2, max_connections: int = 10):
         """
@@ -33,6 +35,12 @@ class OracleDatabase:
             min_connections: Minimum pool size
             max_connections: Maximum pool size
         """
+
+        oracledb.init_oracle_client(
+            lib_dir="/Users/aditya/Downloads/instantclient_23_3",
+            config_dir=self.wallet_dir  # folder where wallet is unzipped
+        )
+
         try:
             self.pool = oracledb.create_pool(
                 user=self.user,
@@ -41,7 +49,7 @@ class OracleDatabase:
                 min=min_connections,
                 max=max_connections,
                 increment=1,
-                threaded=True,
+                # threaded=True,
                 getmode=oracledb.POOL_GETMODE_WAIT
             )
             print(f"✓ Database pool initialized ({min_connections}-{max_connections} connections)")
