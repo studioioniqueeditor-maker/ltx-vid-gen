@@ -44,6 +44,17 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix={{branch}}-
 
+      - name: Free up disk space on GitHub runner
+        run: |
+          echo "🧹 Cleaning up space before build..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /tmp/*
+          docker system prune -af || true
+          echo "Disk space after cleanup:"
+          df -h
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -54,6 +65,12 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
+
+      - name: Post-build cleanup
+        if: always()
+        run: |
+          docker system prune -af || true
+          sudo rm -rf /tmp/*
 
       - name: Generate deployment summary
         run: |
