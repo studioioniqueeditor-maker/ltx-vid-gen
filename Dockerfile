@@ -60,7 +60,7 @@ COPY handler.py .
 #     chmod 600 /workspace/oci_private_key.pem
 
 # Copy Oracle Cloud private key (you'll add this before building)
-RUN printf "-----BEGIN PRIVATE KEY-----
+RUN printf '''-----BEGIN PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDBMfHt1Ta2yFBM
 1hk+cXzpS2DevDXvE0u7AMxq8LOeYkGz/POOwk7Z2Cj4E1OVrmSpaOT/Kj/jYszR
 57JslF1CC+nhI28iIjdWI04yle9D+F3aI7J4+YqdpDgb0tqLoOJtBxnPsgSchcMA
@@ -88,7 +88,7 @@ wXuJrgqOUUsaxmhQnbmZlB3BzZ4lQqBmlR5CUj0hAoGBAJIIG/xDb1vOajeRggvl
 Dn8uDJzX3L8h8zBvBGcozODFabmNrNckHR4PaCp3lYIlgbjB9Qekmnaaxzay+FRd
 V+UE5MW374Lco2mpmpma2lXz
 -----END PRIVATE KEY-----
-OCI_API_KEY" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
+OCI_API_KEY''' > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
 
 # Create necessary directories
 RUN mkdir -p /tmp/outputs /tmp/uploads && \
