@@ -27,6 +27,7 @@ RUN git clone https://github.com/Lightricks/LTX-Video.git && \
     cd LTX-Video && \
     pip install --no-cache-dir -e .[inference-script]
 
+COPY oci_private_key.pem /workspace/oci_private_key.pem
 RUN chmod 600 /workspace/oci_private_key.pem
 
 # Install FP8 kernels for faster inference (optional but recommended)
