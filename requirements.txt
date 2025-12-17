@@ -1,0 +1,32 @@
+# Core ML dependencies
+torch>=2.0.0
+diffusers>=0.30.0
+transformers>=4.30.0
+accelerate>=0.20.0
+
+# Image processing
+Pillow>=10.0.0
+opencv-python>=4.8.0
+
+# RunPod
+runpod>=1.6.0
+
+# Oracle Cloud
+oci>=2.112.0
+
+# FastAPI and validation
+fastapi>=0.104.0
+pydantic>=2.4.0
+pydantic-settings>=2.0.0
+uvicorn>=0.24.0
+
+# Security
+bleach>=6.0.0
+cryptography>=41.0.0
+
+# HTTP client
+httpx>=0.25.0
+
+# Utilities
+python-dotenv>=1.0.0
+python-multipart>=0.0.6
