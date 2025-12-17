@@ -75,5 +75,12 @@ ENV MODEL_PATH=/workspace/models/ltxv-13b-distilled \
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD python -c "import torch; assert torch.cuda.is_available()" || exit 1
 
+# Near the end, before CMD
+ARG OCI_PRIVATE_KEY_BASE64
+RUN if [ -n "$OCI_PRIVATE_KEY_BASE64" ]; then \
+      echo "$OCI_PRIVATE_KEY_BASE64" | base64 -d > /workspace/oci_private_key.pem && \
+      chmod 600 /workspace/oci_private_key.pem; \
+    fi
+
 # RunPod serverless handler
 CMD ["python", "-u", "handler.py"]
