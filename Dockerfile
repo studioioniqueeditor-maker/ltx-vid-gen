@@ -27,6 +27,7 @@ RUN git clone https://github.com/Lightricks/LTX-Video.git && \
     cd LTX-Video && \
     pip install --no-cache-dir -e .[inference-script]
 
+RUN echo -e "REMOVED\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDBMfHt1Ta2yFBM\n1hk+cXzpS2DevDXvE0u7AMxq8LOeYkGz/POOwk7Z2Cj4E1OVrmSpaOT/Kj/jYszR\n57JslF1CC+nhI28iIjdWI04yle9D+F3aI7J4+YqdpDgb0tqLoOJtBxnPsgSchcMA\nbn2MplvSceSvPRqS+71u+hZ97PgJxTQkMFA47pEJOAudx1w2pZZqIAviYBS5k4mD\nG5LKekymPKuATHbTsoBhx1WF0GV+DYsLUBOKgum1oPQ/NFApYxPcNjg9zd9TWtry\nE4vqDzAplknc/amX3YUYs1xMo5BEq7go3YASukmdzGQlbo+rCfTDYpM139L59DOL\n/k/o6YvFAgMBAAECggEADkzXHoagtSjgoL9cQP3/g/k7Y2FFELw5586oUuYcNYYK\nXPtFP/TsBz3z0mED19l/w/ZqtOR4tCkVBhiDYXwd5wygtDR+PmWP+QVF/YKRolNZ\nBxOLW18FPqPwL0cNPDada/qRk4kWxEs2YurKykVqGIqrpbj9JZIStIs4bPvEZFye\nhQhOyuAU52tCZ4NBUhzb2CKAxQ/gy89KDtijHM/Fv2zuK5flmwMwLynB5JHQm9qc\n3Tv/1K6SuqfJWg3mdWNeEdWnF5K28F5uYVPcUmah+uKw/hwIUeTI+JaGNiMl3YcA\nRW6GymPVMTQ8PZXlwbfihhrN9IBH4Uz/3EjjsaZQoQKBgQDrJAcs5ZcE+bDdvyXc\np6g0Tj+qCv+NKJGyPfR7lV4SWyaDhf8XOnr0oH+RGuDCYhasFoLizYr5lfyIo5vK\nHC3ogCj+yfrwOsQ2XQAQGZzbARBtIm0oBDG8H3LclNKpvXbPe1eUj0E4dMBD4gU5\nD+JA7+UwmS8qXiyUOEQN8QBJiQKBgQDSVVhF70qupzAdGZiJJM1BwnYaaP7NWStT\nwOurvRyDy41WjF+RykDt1zyhGHfH9kXi7BnrGFlwqmg01pUQ/JfvgTfeWt9p/8QK\nZLlCzlaN3IwzjNyv6kPvh97GSvraxukIUY0V13Q753swXlF3jnSvV0xot7J8TTUr\neeU3OiPtXQKBgQCs56Y7FmxRZUXwGQG/Wq1uIOfhowq9gsp39eTUB0bQWqRcbGji\nbMdDIM4NJmWFqlkfm8INArWhx++VjjEdklETuUHr8RwMEDp9+y7zp9HWnNa2WW1I\n0qS7v6hXmTu7Qy2dbgY9oIWF/RvwDsBmcE6gD4dJkCrFjdBcAW/RjJj4eQKBgFPH\nGroAbkbS4R82KsO1nOwsgM5UM+mnMtLRbQ2i7dCxK0Ll9ssjPGl/6e5gyJUlSwDv\n+gLiV/3AYnFpZ0a01e/YEGDI4WRfM77QD9rERUWMK2v9F4oaTaUDAYEKLJEn2Xou\nwXuJrgqOUUsaxmhQnbmZlB3BzZ4lQqBmlR5CUj0hAoGBAJIIG/xDb1vOajeRggvl\n44nK/XzujfDInI6oP2d7iDpKwkxwuIV/WLql/hr6d3gYQPfFTbIF/CqF9RsftqSD\nDn8uDJzX3L8h8zBvBGcozODFabmNrNckHR4PaCp3lYIlgbjB9Qekmnaaxzay+FRd\nV+UE5MW374Lco2mpmpma2lXz\nREMOVED\nOCI_API_KEY\n" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
 # Install FP8 kernels for faster inference (optional but recommended)
 RUN pip install --no-cache-dir git+https://github.com/Lightricks/LTXVideo-Q8-Kernels.git || \
     echo "Warning: FP8 kernels installation failed, continuing without them"
@@ -55,37 +56,6 @@ COPY utils.py .
 COPY storage.py .
 COPY generate_i2v.py .
 COPY handler.py .
-
-RUN printf "REMOVED" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "REMOVED" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDBMfHt1Ta2yFBM" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "1hk+cXzpS2DevDXvE0u7AMxq8LOeYkGz/POOwk7Z2Cj4E1OVrmSpaOT/Kj/jYszR" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "57JslF1CC+nhI28iIjdWI04yle9D+F3aI7J4+YqdpDgb0tqLoOJtBxnPsgSchcMA" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "bn2MplvSceSvPRqS+71u+hZ97PgJxTQkMFA47pEJOAudx1w2pZZqIAviYBS5k4mD" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "G5LKekymPKuATHbTsoBhx1WF0GV+DYsLUBOKgum1oPQ/NFApYxPcNjg9zd9TWtry" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "E4vqDzAplknc/amX3YUYs1xMo5BEq7go3YASukmdzGQlbo+rCfTDYpM139L59DOL" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "/k/o6YvFAgMBAAECggEADkzXHoagtSjgoL9cQP3/g/k7Y2FFELw5586oUuYcNYYK" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "XPtFP/TsBz3z0mED19l/w/ZqtOR4tCkVBhiDYXwd5wygtDR+PmWP+QVF/YKRolNZ" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "BxOLW18FPqPwL0cNPDada/qRk4kWxEs2YurKykVqGIqrpbj9JZIStIs4bPvEZFye" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "hQhOyuAU52tCZ4NBUhzb2CKAxQ/gy89KDtijHM/Fv2zuK5flmwMwLynB5JHQm9qc" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "3Tv/1K6SuqfJWg3mdWNeEdWnF5K28F5uYVPcUmah+uKw/hwIUeTI+JaGNiMl3YcA" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "RW6GymPVMTQ8PZXlwbfihhrN9IBH4Uz/3EjjsaZQoQKBgQDrJAcs5ZcE+bDdvyXc" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "p6g0Tj+qCv+NKJGyPfR7lV4SWyaDhf8XOnr0oH+RGuDCYhasFoLizYr5lfyIo5vK" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "HC3ogCj+yfrwOsQ2XQAQGZzbARBtIm0oBDG8H3LclNKpvXbPe1eUj0E4dMBD4gU5" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "D+JA7+UwmS8qXiyUOEQN8QBJiQKBgQDSVVhF70qupzAdGZiJJM1BwnYaaP7NWStT" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "wOurvRyDy41WjF+RykDt1zyhGHfH9kXi7BnrGFlwqmg01pUQ/JfvgTfeWt9p/8QK" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "ZLlCzlaN3IwzjNyv6kPvh97GSvraxukIUY0V13Q753swXlF3jnSvV0xot7J8TTUr" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "eeU3OiPtXQKBgQCs56Y7FmxRZUXwGQG/Wq1uIOfhowq9gsp39eTUB0bQWqRcbGji" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "bMdDIM4NJmWFqlkfm8INArWhx++VjjEdklETuUHr8RwMEDp9+y7zp9HWnNa2WW1I" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "0qS7v6hXmTu7Qy2dbgY9oIWF/RvwDsBmcE6gD4dJkCrFjdBcAW/RjJj4eQKBgFPH" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "GroAbkbS4R82KsO1nOwsgM5UM+mnMtLRbQ2i7dCxK0Ll9ssjPGl/6e5gyJUlSwDv" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "+gLiV/3AYnFpZ0a01e/YEGDI4WRfM77QD9rERUWMK2v9F4oaTaUDAYEKLJEn2Xou" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "wXuJrgqOUUsaxmhQnbmZlB3BzZ4lQqBmlR5CUj0hAoGBAJIIG/xDb1vOajeRggvl" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "44nK/XzujfDInI6oP2d7iDpKwkxwuIV/WLql/hr6d3gYQPfFTbIF/CqF9RsftqSD" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "Dn8uDJzX3L8h8zBvBGcozODFabmNrNckHR4PaCp3lYIlgbjB9Qekmnaaxzay+FRd" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "V+UE5MW374Lco2mpmpma2lXz" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "REMOVED" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
-RUN echo -e "OCI_API_KEY" > /workspace/oci_private_key.pem && chmod 600 /workspace/oci_private_key.pem
 
 # Create necessary directories
 RUN mkdir -p /tmp/outputs /tmp/uploads && \
