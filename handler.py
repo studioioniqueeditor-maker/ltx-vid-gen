@@ -93,11 +93,22 @@ def handler(job):
         prompt = job_input.get("prompt")
         image_url = job_input.get("image_url")
         
-        # Optional parameters
-        width = job_input.get("width", 1280)
-        height = job_input.get("height", 720)
-        num_frames = job_input.get("num_frames", 121)
-        num_steps = job_input.get("num_steps", 8)
+            # Optional parameters
+            width = job_input.get("width", 1280)
+            height = job_input.get("height", 720)
+            
+            # Validation: Ensure divisible by 32 (LTX requirement)
+            if width % 32 != 0:
+                new_width = (width // 32) * 32
+                print(f"WARNING: Width {width} not divisible by 32. Snapping to {new_width}")
+                width = new_width
+                
+            if height % 32 != 0:
+                new_height = (height // 32) * 32
+                print(f"WARNING: Height {height} not divisible by 32. Snapping to {new_height}")
+                height = new_height
+            
+            num_frames = job_input.get("num_frames", 121)        num_steps = job_input.get("num_steps", 8)
         seed = job_input.get("seed", 42)
         
         if not prompt or not image_url:
