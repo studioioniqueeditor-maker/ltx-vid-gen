@@ -2,7 +2,6 @@
 FROM runpod/base:0.4.0-cuda12.1.0
 
 # 1. Install system dependencies
-# Added libgl1-mesa-glx and libglib2.0-0 which are often needed for OpenCV/image libs
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     libsm6 \
@@ -14,18 +13,25 @@ RUN apt-get update && apt-get install -y \
 # 2. Set working directory
 WORKDIR /app
 
-# 3. Install Python requirements
+# 3. Copy requirements first
 COPY requirements.txt .
-# --no-deps prevents it from trying to reinstall torch/torchvision if diffusers depends on them
-# We verify torch manually in the handler
-RUN pip install --no-cache-dir -r requirements.txt
 
-# 4. Copy application code
+# 4. Install Python requirements
+# Force upgrade pip and install requirements
+# We install runpod explicitly again just to be paranoid
+RUN python3 -m pip install --upgrade pip && \
+    python3 -m pip install --no-cache-dir -r requirements.txt && \
+    python3 -m pip install runpod
+
+# 5. Copy application code
 COPY . .
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV HF_HOME=/workspace/hf_cache
+# Ensure local bin is in path (just in case)
+ENV PATH="/usr/local/bin:$PATH"
 
-# 5. Run the handler
+# 6. Run the handler
+# Explicitly use the python3 executable that has the packages installed
 CMD [ "python3", "-u", "handler.py" ]
