@@ -40,6 +40,19 @@ def init_model():
             print("--- Loading Model into VRAM ---")
             model_path = "/workspace/ltx-models"
             
+            # DEBUG: Check what is actually in /workspace
+            print("DEBUG: Listing /workspace contents:")
+            if os.path.exists("/workspace"):
+                for root, dirs, files in os.walk("/workspace"):
+                    level = root.replace("/workspace", "").count(os.sep)
+                    indent = " " * 4 * (level)
+                    print(f"{indent}{os.path.basename(root)}/")
+                    subindent = " " * 4 * (level + 1)
+                    for f in files:
+                        print(f"{subindent}{f}")
+            else:
+                print("DEBUG: /workspace directory does NOT exist!")
+
             # Check if directory exists
             if not os.path.exists(model_path):
                 print(f"WARNING: Model path {model_path} does not exist. Checking for fallbacks or download.")
