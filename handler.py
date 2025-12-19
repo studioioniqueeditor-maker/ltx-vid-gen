@@ -1,19 +1,54 @@
 import runpod
-import torch
-import base64
+import sys
 import os
-from generate_i2v import LTXVideoGenerator
+import traceback
 
-# GLOBAL VARIABLE: This stays in memory between serverless calls
+# ----------------------------------------------------------------------------
+# DEBUG: Early Logging to catch import crashes
+# ----------------------------------------------------------------------------
+print("--- HANDLER STARTUP ---")
+print(f"Python Version: {sys.version}")
+try:
+    import torch
+    print(f"Torch Version: {torch.__version__}")
+    print(f"CUDA Available: {torch.cuda.is_available()}")
+    if torch.cuda.is_available():
+        print(f"CUDA Device: {torch.cuda.get_device_name(0)}")
+except ImportError as e:
+    print(f"CRITICAL: Failed to import torch: {e}")
+except Exception as e:
+    print(f"CRITICAL: Error checking CUDA: {e}")
+
+# ----------------------------------------------------------------------------
+# IMPORTS
+# ----------------------------------------------------------------------------
+try:
+    import base64
+    from generate_i2v import LTXVideoGenerator
+except Exception as e:
+    print("CRITICAL: Failed to import application modules")
+    traceback.print_exc()
+    sys.exit(1)
+
+# GLOBAL VARIABLE
 generator = None
 
 def init_model():
     global generator
     if generator is None:
-        print("--- Loading Model into VRAM ---")
-        # Point this to your mounted Network Volume path!
-        model_path = "/workspace/ltx-models"
-        generator = LTXVideoGenerator(model_path=model_path)
+        try:
+            print("--- Loading Model into VRAM ---")
+            model_path = "/workspace/ltx-models"
+            
+            # Check if directory exists
+            if not os.path.exists(model_path):
+                print(f"WARNING: Model path {model_path} does not exist. Checking for fallbacks or download.")
+            
+            generator = LTXVideoGenerator(model_path=model_path)
+        except Exception as e:
+            print(f"CRITICAL: Model initialization failed: {e}")
+            traceback.print_exc()
+            raise e
     return generator
 
 def encode_video_to_base64(video_path):
@@ -22,25 +57,27 @@ def encode_video_to_base64(video_path):
     return encoded_string
 
 def handler(job):
-    # This ensures the model is loaded once per worker lifecycle
-    gen = init_model()
+    print(f"Received job: {job.get('id')}")
     
-    job_input = job["input"]
-    prompt = job_input.get("prompt")
-    image_url = job_input.get("image_url")
-    
-    # Optional parameters
-    width = job_input.get("width", 1280)
-    height = job_input.get("height", 720)
-    num_frames = job_input.get("num_frames", 121)
-    num_steps = job_input.get("num_steps", 8)
-    seed = job_input.get("seed", 42)
-    
-    if not prompt or not image_url:
-        return {"error": "Prompt and image_url are required."}
-    
-    # Run inference
     try:
+        # Initialize model inside handler to capture errors in job logs if possible
+        gen = init_model()
+        
+        job_input = job["input"]
+        prompt = job_input.get("prompt")
+        image_url = job_input.get("image_url")
+        
+        # Optional parameters
+        width = job_input.get("width", 1280)
+        height = job_input.get("height", 720)
+        num_frames = job_input.get("num_frames", 121)
+        num_steps = job_input.get("num_steps", 8)
+        seed = job_input.get("seed", 42)
+        
+        if not prompt or not image_url:
+            return {"error": "Prompt and image_url are required."}
+        
+        # Run inference
         video_path = gen.generate(
             prompt=prompt, 
             image_path=image_url,
@@ -61,6 +98,9 @@ def handler(job):
         return {"video_base64": video_base64}
         
     except Exception as e:
-        return {"error": f"An error occurred during video generation: {str(e)}"}
+        print(f"ERROR processing job: {e}")
+        traceback.print_exc()
+        return {"error": f"An error occurred: {str(e)}"}
 
+print("--- Starting RunPod Serverless Listener ---")
 runpod.serverless.start({"handler": handler})

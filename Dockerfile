@@ -2,24 +2,30 @@
 FROM runpod/base:0.4.0-cuda12.1.0
 
 # 1. Install system dependencies
-RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 && rm -rf /var/lib/apt/lists/*
+# Added libgl1-mesa-glx and libglib2.0-0 which are often needed for OpenCV/image libs
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    libsm6 \
+    libxext6 \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
 
-# 2. Set working directory to /app
-# This ensures we know exactly where our files are
+# 2. Set working directory
 WORKDIR /app
 
 # 3. Install Python requirements
 COPY requirements.txt .
+# --no-deps prevents it from trying to reinstall torch/torchvision if diffusers depends on them
+# We verify torch manually in the handler
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 4. Copy application code
 COPY . .
 
-# Set environment variables for better performance
+# Set environment variables
 ENV PYTHONUNBUFFERED=1
-# Keep Hugging Face cache in workspace (volume mount friendly)
 ENV HF_HOME=/workspace/hf_cache
 
 # 5. Run the handler
-# Use python3 and relative path since we are in WORKDIR
 CMD [ "python3", "-u", "handler.py" ]
