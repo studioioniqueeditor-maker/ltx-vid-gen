@@ -70,19 +70,42 @@ class LTXVideoGenerator:
         
         print(f"Generating video...")
         print(f"  Prompt: {prompt}")
+        
+        # DEBUG: Inspect pipeline signature
+        import inspect
+        sig = inspect.signature(self.pipe.__call__)
+        print(f"DEBUG: Pipeline expects arguments: {list(sig.parameters.keys())}")
 
         try:
-            video = self.pipe(
-                image=image,
-                prompt=prompt,
-                negative_prompt=negative_prompt,
-                width=width,
-                height=height,
-                num_frames=num_frames,
-                num_inference_steps=num_steps,
-                generator=torch.Generator().manual_seed(seed),
-                output_type="pil"
-            ).frames[0]
+            # Try standard 'image' argument first
+            if 'image' in sig.parameters:
+                video = self.pipe(
+                    image=image,
+                    prompt=prompt,
+                    negative_prompt=negative_prompt,
+                    width=width,
+                    height=height,
+                    num_frames=num_frames,
+                    num_inference_steps=num_steps,
+                    generator=torch.Generator().manual_seed(seed),
+                    output_type="pil"
+                ).frames[0]
+            elif 'media_items' in sig.parameters:
+                print("Using 'media_items' argument instead of 'image'...")
+                video = self.pipe(
+                    media_items=image,
+                    prompt=prompt,
+                    negative_prompt=negative_prompt,
+                    width=width,
+                    height=height,
+                    num_frames=num_frames,
+                    num_inference_steps=num_steps,
+                    generator=torch.Generator().manual_seed(seed),
+                    output_type="pil"
+                ).frames[0]
+            else:
+                raise ValueError(f"Pipeline does not accept 'image' or 'media_items'. Available args: {list(sig.parameters.keys())}")
+
         except Exception as e:
             raise Exception(f"Video generation failed: {e}")
 
