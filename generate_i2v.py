@@ -60,7 +60,15 @@ class LTXVideoGenerator:
             )
 
         pipe.to("cuda")
-        # pipe.vae.enable_tiling() # Optional: Enable if VRAM is tight, but usually fine on A100
+        
+        # MEMORY OPTIMIZATIONS
+        print("Enabling memory optimizations (VAE Tiling & Slicing)...")
+        pipe.vae.enable_tiling()
+        pipe.vae.enable_slicing()
+        
+        # Optional: Model CPU Offload (Drastically saves VRAM but slightly slower)
+        # Uncomment if still hitting OOM on <48GB cards
+        # pipe.enable_model_cpu_offload() 
         
         print("Model loaded successfully!")
         return pipe
