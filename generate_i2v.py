@@ -41,6 +41,10 @@ class LTXVideoGenerator:
                 fp8_file, 
                 torch_dtype=torch.float8_e4m3fn
             )
+            # FORCE CAST TO BFLOAT16 to avoid matmul errors
+            # The weights are loaded as FP8, but we run computation in BF16
+            transformer = transformer.to(dtype=torch.bfloat16)
+            
             # Load the rest of the pipeline from the folder structure
             # Use LTXImageToVideoPipeline explicitly
             pipe = LTXImageToVideoPipeline.from_pretrained(
