@@ -9,11 +9,14 @@ import time
 from huggingface_hub import hf_hub_download
 
 try:
-    from diffusers import LTXVideoTransformer3DModel, LTXPipeline
+    from diffusers import LTXImageToVideoPipeline, LTXVideoTransformer3DModel
     from diffusers.utils import export_to_video, load_image
 except ImportError as e:
     print(f"CRITICAL ERROR: Failed to import diffusers modules: {e}")
-    print("Please ensure diffusers>=0.32.1 is installed.")
+    # Fallback/Debug info
+    import diffusers
+    print(f"Diffusers version: {diffusers.__version__}")
+    print(f"Available modules in diffusers: {dir(diffusers)}")
     raise e
 
 # Configuration
@@ -39,14 +42,15 @@ class LTXVideoGenerator:
                 torch_dtype=torch.float8_e4m3fn
             )
             # Load the rest of the pipeline from the folder structure
-            pipe = LTXPipeline.from_pretrained(
+            # Use LTXImageToVideoPipeline explicitly
+            pipe = LTXImageToVideoPipeline.from_pretrained(
                 self.model_path,
                 transformer=transformer,
                 torch_dtype=torch.bfloat16
             )
         else:
             print("Loading standard model (folder structure)...")
-            pipe = LTXPipeline.from_pretrained(
+            pipe = LTXImageToVideoPipeline.from_pretrained(
                 self.model_path,
                 torch_dtype=torch.bfloat16
             )
