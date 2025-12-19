@@ -28,8 +28,8 @@ COPY . .
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
-ENV HF_HOME=/workspace/hf_cache
-# Ensure local bin is in path (just in case)
+ENV HF_HOME=/runpod-volume/hf_cache
+# Ensure local bin is in path
 ENV PATH="/usr/local/bin:$PATH"
 
 # 6. Run the handler
