@@ -38,25 +38,38 @@ def init_model():
     if generator is None:
         try:
             print("--- Loading Model into VRAM ---")
-            model_path = "/workspace/ltx-models"
             
-            # DEBUG: Check what is actually in /workspace
-            print("DEBUG: Listing /workspace contents:")
-            if os.path.exists("/workspace"):
-                for root, dirs, files in os.walk("/workspace"):
-                    level = root.replace("/workspace", "").count(os.sep)
-                    indent = " " * 4 * (level)
-                    print(f"{indent}{os.path.basename(root)}/")
-                    subindent = " " * 4 * (level + 1)
-                    for f in files:
-                        print(f"{subindent}{f}")
-            else:
-                print("DEBUG: /workspace directory does NOT exist!")
+            # Check common mount paths
+            possible_paths = [
+                "/workspace/ltx-models",  # Manual mount path
+                "/runpod-volume/ltx-models", # Default RunPod Serverless mount if folder exists
+                "/runpod-volume" # If files are in root of volume
+            ]
+            
+            model_path = None
+            for path in possible_paths:
+                if os.path.exists(path):
+                    # Check if it actually contains the model file we need
+                    if os.path.exists(os.path.join(path, "model_index.json")) or \
+                       os.path.exists(os.path.join(path, "ltxv-13b-0.9.8-distilled-fp8.safetensors")):
+                        model_path = path
+                        print(f"Found model at: {model_path}")
+                        break
+            
+            if model_path is None:
+                # DEBUG: List directories to find where it is
+                print("DEBUG: Could not find model. Listing root directories:")
+                for root_dir in ["/workspace", "/runpod-volume"]:
+                    if os.path.exists(root_dir):
+                        print(f"Listing {root_dir}:")
+                        for f in os.listdir(root_dir):
+                            print(f" - {f}")
+                    else:
+                        print(f"{root_dir} does not exist.")
+                
+                # Fallback to original default to let it fail with specific error
+                model_path = "/workspace/ltx-models"
 
-            # Check if directory exists
-            if not os.path.exists(model_path):
-                print(f"WARNING: Model path {model_path} does not exist. Checking for fallbacks or download.")
-            
             generator = LTXVideoGenerator(model_path=model_path)
         except Exception as e:
             print(f"CRITICAL: Model initialization failed: {e}")
