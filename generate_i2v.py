@@ -1,144 +1,93 @@
 """
 LTX Video 13B Image-to-Video Generator
-Optimized for RunPod A40 @ 720p
+Optimized for RunPod A100/H100
 """
 
 import torch
 import os
 import time
-import argparse
-from pathlib import Path
-from diffusers import LTXConditionPipeline
-from diffusers.pipelines.ltx.pipeline_ltx_condition import LTXVideoCondition
+from diffusers import LTXVideoTransformer3DModel, LTXPipeline
 from diffusers.utils import export_to_video, load_image
+from huggingface_hub import hf_hub_download
 
 # Configuration
-MODEL_PATH = '/workspace/models/ltxv-13b-distilled'
-OUTPUT_DIR = '/workspace/outputs'
+# This path should point to the volume mount: /workspace/ltx-models
+DEFAULT_MODEL_PATH = '/workspace/ltx-models'
 
-# 720p settings
-WIDTH = 1280
-HEIGHT = 720
-NUM_FRAMES = 121  # ~5 seconds at 24fps
-FPS = 24
-NUM_STEPS = 8  # Distilled model needs fewer steps
+class LTXVideoGenerator:
+    def __init__(self, model_path=DEFAULT_MODEL_PATH):
+        self.model_path = model_path
+        self.pipe = self._load_pipeline()
 
+    def _load_pipeline(self):
+        print(f"Loading LTX Video model from {self.model_path}...")
+        
+        # Check for FP8 single file specifically
+        fp8_file = os.path.join(self.model_path, "ltxv-13b-0.9.8-distilled-fp8.safetensors")
+        
+        if os.path.exists(fp8_file):
+            print(f"Found FP8 checkpoint: {fp8_file}")
+            # Load the transformer from the single file
+            transformer = LTXVideoTransformer3DModel.from_single_file(
+                fp8_file, 
+                torch_dtype=torch.float8_e4m3fn
+            )
+            # Load the rest of the pipeline from the folder structure
+            pipe = LTXPipeline.from_pretrained(
+                self.model_path,
+                transformer=transformer,
+                torch_dtype=torch.bfloat16
+            )
+        else:
+            print("Loading standard model (folder structure)...")
+            pipe = LTXPipeline.from_pretrained(
+                self.model_path,
+                torch_dtype=torch.bfloat16
+            )
 
-def load_pipeline():
-    """Load LTX pipeline with optimizations"""
-    print("Loading LTX Video 13B Distilled...")
-    
-    pipe = LTXConditionPipeline.from_pretrained(
-        MODEL_PATH,
-        torch_dtype=torch.bfloat16
-    )
-    pipe.to("cuda")
-    pipe.vae.enable_tiling()
-    
-    print("Model loaded successfully!")
-    return pipe
+        pipe.to("cuda")
+        # pipe.vae.enable_tiling() # Optional: Enable if VRAM is tight, but usually fine on A100
+        
+        print("Model loaded successfully!")
+        return pipe
 
+    def generate(self, prompt, image_path, width=1280, height=720, num_frames=121, num_steps=8, seed=42):
+        """
+        Generate video from image
+        """
+        try:
+            image = load_image(image_path)
+        except Exception as e:
+            raise ValueError(f"Failed to load image: {e}")
 
-def generate_video(pipe, image_path, prompt, output_name, seed=42):
-    """Generate video from image
+        negative_prompt = "worst quality, inconsistent motion, blurry, jittery, distorted"
+        
+        print(f"Generating video...")
+        print(f"  Prompt: {prompt}")
 
-    Args:
-        pipe: Loaded LTX pipeline
-        image_path: Path to input image (local path or URL)
-        prompt: Motion description prompt
-        output_name: Output filename (without extension)
-        seed: Random seed for reproducibility
+        try:
+            video = self.pipe(
+                image=image,
+                prompt=prompt,
+                negative_prompt=negative_prompt,
+                width=width,
+                height=height,
+                num_frames=num_frames,
+                num_inference_steps=num_steps,
+                generator=torch.Generator().manual_seed(seed),
+                output_type="pil"
+            ).frames[0]
+        except Exception as e:
+            raise Exception(f"Video generation failed: {e}")
 
-    Returns:
-        Path to generated video
-
-    Raises:
-        ValueError: If image_path is invalid or inaccessible
-        Exception: If generation fails
-    """
-    # Validate and load input image
-    # Note: URL validation should be done by caller (validation.py)
-    # This is a secondary safety check
-    try:
-        image = load_image(image_path)
-    except Exception as e:
-        raise ValueError(f"Failed to load image from {image_path[:50]}...: {e}")
-    
-    # Create conditioning
-    condition = LTXVideoCondition(
-        image=image,
-        frame_index=0
-    )
-    
-    negative_prompt = "worst quality, inconsistent motion, blurry, jittery, distorted"
-    
-    print(f"Generating video: {output_name}")
-    print(f"  Resolution: {WIDTH}x{HEIGHT}")
-    print(f"  Frames: {NUM_FRAMES} (~{NUM_FRAMES/FPS:.1f}s at {FPS}fps)")
-    print(f"  Prompt: {prompt[:50]}...")
-
-    start = time.time()
-
-    try:
-        video = pipe(
-            conditions=[condition],
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            width=WIDTH,
-            height=HEIGHT,
-            num_frames=NUM_FRAMES,
-            num_inference_steps=NUM_STEPS,
-            generator=torch.Generator().manual_seed(seed),
-            output_type="pil"
-        ).frames[0]
-    except torch.cuda.OutOfMemoryError:
-        raise Exception(
-            f"GPU out of memory. Try reducing resolution or num_frames. "
-            f"Current: {WIDTH}x{HEIGHT}, {NUM_FRAMES} frames"
-        )
-    except Exception as e:
-        raise Exception(f"Video generation failed: {e}")
-
-    elapsed = time.time() - start
-    print(f"Generated in {elapsed:.1f}s")
-
-    # Save output
-    try:
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-        output_path = f"{OUTPUT_DIR}/{output_name}.mp4"
-        export_to_video(video, output_path, fps=FPS)
-    except Exception as e:
-        raise Exception(f"Failed to save video: {e}")
-
-    print(f"Saved: {output_path}")
-    return output_path
-
-
-def main():
-    parser = argparse.ArgumentParser(description="LTX Video I2V Generator")
-    parser.add_argument("--image", required=True, help="Input image path or URL")
-    parser.add_argument("--prompt", required=True, help="Motion description prompt")
-    parser.add_argument("--output", default="output", help="Output filename (no extension)")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--width", type=int, default=1280, help="Output width")
-    parser.add_argument("--height", type=int, default=720, help="Output height")
-    parser.add_argument("--frames", type=int, default=121, help="Number of frames")
-    parser.add_argument("--steps", type=int, default=8, help="Inference steps")
-    args = parser.parse_args()
-    
-    # Update globals if custom values provided
-    global WIDTH, HEIGHT, NUM_FRAMES, NUM_STEPS
-    WIDTH = args.width
-    HEIGHT = args.height
-    NUM_FRAMES = args.frames
-    NUM_STEPS = args.steps
-    
-    # Load and generate
-    pipe = load_pipeline()
-    path = generate_video(pipe, args.image, args.prompt, args.output, args.seed)
-    
-    print(f"\nDone! Video saved to: {path}")
-
-
-if __name__ == "__main__":
-    main()
+        # Save output temporarily
+        output_dir = "/tmp/outputs"
+        os.makedirs(output_dir, exist_ok=True)
+        timestamp = int(time.time())
+        output_filename = f"generated_{timestamp}.mp4"
+        output_path = os.path.join(output_dir, output_filename)
+        
+        export_to_video(video, output_path, fps=24)
+        print(f"Saved local video: {output_path}")
+        
+        return output_path

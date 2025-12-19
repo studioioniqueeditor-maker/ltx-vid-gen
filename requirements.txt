@@ -11,9 +11,6 @@ opencv-python>=4.8.0
 # RunPod
 runpod>=1.6.0
 
-# Oracle Cloud
-oci>=2.112.0
-
 # FastAPI and validation
 fastapi>=0.104.0
 pydantic>=2.4.0

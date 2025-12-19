@@ -1,5 +1,5 @@
 """
-Configuration Management - Simplified
+Configuration Management
 Loads and validates environment variables for RunPod serverless
 """
 
@@ -10,21 +10,11 @@ import os
 
 
 class Settings(BaseSettings):
-    """Application configuration with environment variable loading and validation"""
-
-    # Oracle Object Storage (REQUIRED)
-    OCI_NAMESPACE: str = Field(..., description="Oracle Cloud namespace")
-    OCI_BUCKET_NAME: str = Field(default="ltx-video-outputs")
-    OCI_REGION: str = Field(default="us-ashburn-1")
-    OCI_USER_OCID: str = Field(..., description="Oracle Cloud user OCID")
-    OCI_FINGERPRINT: str = Field(..., description="API key fingerprint")
-    OCI_TENANCY_OCID: str = Field(..., description="Tenancy OCID")
-    OCI_PRIVATE_KEY_PATH: str = Field(..., description="Path to private key file")
+    """Application configuration"""
 
     # Model Configuration
-    MODEL_PATH: str = Field(default="/workspace/models/ltxv-13b-distilled")
+    MODEL_PATH: str = Field(default="/workspace/ltx-models")
     OUTPUT_DIR: str = Field(default="/tmp/outputs")
-    UPLOAD_DIR: str = Field(default="/tmp/uploads")
 
     # Video Generation Defaults
     DEFAULT_WIDTH: int = Field(default=1280, ge=256, le=1920)
@@ -76,28 +66,3 @@ except Exception as e:
     print(f"ERROR: Failed to load settings: {e}")
     print("Please check your .env file or environment variables")
     raise
-
-
-# Validate configuration on import
-def validate_config():
-    """Validate critical configuration"""
-    errors = []
-
-    # Check Oracle Cloud config
-    required_oci = ['OCI_NAMESPACE', 'OCI_USER_OCID', 'OCI_FINGERPRINT', 
-                    'OCI_TENANCY_OCID', 'OCI_PRIVATE_KEY_PATH']
-    for key in required_oci:
-        if not getattr(settings, key, None):
-            errors.append(f"Missing Oracle Cloud config: {key}")
-
-    if errors:
-        print("\n⚠️  Configuration Validation Warnings:")
-        for error in errors:
-            print(f"  - {error}")
-        print()
-
-    return len(errors) == 0
-
-
-# Run validation on import (but don't fail, just warn)
-validate_config()
