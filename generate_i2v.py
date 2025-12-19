@@ -6,9 +6,15 @@ Optimized for RunPod A100/H100
 import torch
 import os
 import time
-from diffusers import LTXVideoTransformer3DModel, LTXPipeline
-from diffusers.utils import export_to_video, load_image
 from huggingface_hub import hf_hub_download
+
+try:
+    from diffusers import LTXVideoTransformer3DModel, LTXPipeline
+    from diffusers.utils import export_to_video, load_image
+except ImportError as e:
+    print(f"CRITICAL ERROR: Failed to import diffusers modules: {e}")
+    print("Please ensure diffusers>=0.32.1 is installed.")
+    raise e
 
 # Configuration
 # This path should point to the volume mount: /workspace/ltx-models

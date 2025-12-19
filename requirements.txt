@@ -1,6 +1,6 @@
 # Core ML dependencies
 # torch>=2.0.0  <-- Provided by RunPod base image
-diffusers>=0.30.0
+diffusers>=0.32.1
 transformers>=4.30.0
 accelerate>=0.20.0
 
