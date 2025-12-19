@@ -1,0 +1,11 @@
+.git
+.gitignore
+.env
+__pycache__
+venv/
+runpod1
+runpod1.pub
+*.md
+Dockerfile
+Dockerfile.bak
+_OLD/
