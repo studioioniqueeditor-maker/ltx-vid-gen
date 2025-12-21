@@ -7,6 +7,12 @@ try:
     from ltx_video.inference import infer, InferenceConfig
 except ImportError:
     print("WARNING: ltx_video module not found. Inference will not work without the LTX-Video repository.")
+    # Placeholders for unit tests
+    def infer(*args, **kwargs): pass
+    class InferenceConfig:
+        def __init__(self, *args, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
 
 class LTXInferenceEngine:
     def __init__(self, repo_path="/workspace/LTX-Video", config_file="configs/ltxv-2b-0.9.8-distilled-fp8.yaml"):
