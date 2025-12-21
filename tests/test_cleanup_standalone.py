@@ -17,10 +17,8 @@ def test_old_files_removed():
         "runpod1",
         "runpod1.pub",
         "Dockerfile.bak",
-        # "Dockerfile", # We are keeping Dockerfile for now but overwriting it later, actually spec says remove old implementation files. 
-        # But Dockerfile might be useful reference? No, spec says "Create a new Dockerfile".
-        "Dockerfile",
-        "requirements.txt",
+        # "Dockerfile", # RECREATED
+        # "requirements.txt", # RECREATED
         ".env.client.example",
         ".env.example",
         "key_single_line.txt"
