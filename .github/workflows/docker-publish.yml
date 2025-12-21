@@ -27,21 +27,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Debug Secrets
-        run: |
-          if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
-            echo "::error::DOCKER_USERNAME secret is missing or empty!"
-            exit 1
-          else
-            echo "DOCKER_USERNAME is set."
-          fi
-          if [ -z "${{ secrets.DOCKER_PASSWORD }}" ]; then
-            echo "::error::DOCKER_PASSWORD secret is missing or empty!"
-            exit 1
-          else
-            echo "DOCKER_PASSWORD is set."
-          fi
-
       # Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -61,7 +46,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           # Use the secret username to ensure we push to the correct account
-          images: ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/ltx-vid-gen
+          images: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/ltx-vid-gen
 
       # Build and push Docker image with Buildx
       - name: Build and push Docker image
