@@ -61,6 +61,11 @@ class LTXVideoGenerator:
 
         pipe.to("cuda")
         
+        # CRITICAL FIX: Force VAE to Float32 to prevent visual artifacts/static
+        # The VAE is sensitive to BF16 precision.
+        print("Forcing VAE to Float32 to prevent generation artifacts...")
+        pipe.vae = pipe.vae.to(dtype=torch.float32)
+        
         # MEMORY OPTIMIZATIONS
         print("Enabling memory optimizations (VAE Tiling & Slicing)...")
         pipe.vae.enable_tiling()

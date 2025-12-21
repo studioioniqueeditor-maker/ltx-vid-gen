@@ -3,3 +3,9 @@ oci_private_key.pem
 _OLD/
 v1/
 .DS_Store
+\n# Client and logs
+.env.client
+output/
+error_logs.txt
+__pycache__/
+*.pyc
