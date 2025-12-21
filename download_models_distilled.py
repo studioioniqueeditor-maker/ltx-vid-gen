@@ -11,15 +11,16 @@ def download_distilled_model(target_dir="/workspace/ltx-models"):
         
         # We only want the 2B distilled FP8 files and necessary configs
         allow_patterns = [
-            "*2b*distilled*fp8*",  # Matches ltxv-2b-0.9.8-distilled-fp8.safetensors and .yaml
-            "*.json",              # Configs like config.json, scheduler_config.json
-            "*.txt",               # License, requirements
-            "*.md",                # README
-            "scheduler/*",         # Scheduler configs often in subfolder
-            "tokenizer/*",         # Tokenizer files
-            "text_encoder/*",      # Text encoder files
-            "transformer/*",       # Transformer config
-            "vae/*"                # VAE config
+            "**/*2b*distilled*fp8*",  # Matches ltxv-2b... in root or configs/ or checkpoints/
+            "**/*.json",              # Configs like config.json, scheduler_config.json anywhere
+            "**/*.txt",               # License, requirements
+            "*.md",                # README in root
+            "scheduler/**",         # Scheduler configs
+            "tokenizer/**",         # Tokenizer files
+            "text_encoder/**",      # Text encoder files
+            "transformer/**",       # Transformer config
+            "vae/**",                # VAE config
+            "configs/**"            # Ensure all configs are downloaded just in case
         ]
         
         # Exclude 13B models to save space/time
