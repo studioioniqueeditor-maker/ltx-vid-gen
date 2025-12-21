@@ -18,7 +18,7 @@
 - [x] Task: Write a local test script `test_inference_local.py` to run a generation using `inference_engine.py` and a sample image. ae4128c
 - [ ] Task: Conductor - User Manual Verification 'Inference Engine Implementation' (Protocol in workflow.md)
 
-## Phase 4: RunPod Handler Integration
+## Phase 4: RunPod Handler Integration [checkpoint: 646c0ea]
 - [x] Task: Create `handler.py` that:
     -   Initializes the `inference_engine` on startup.
     -   Parses RunPod event input (image URL/Base64, prompt).
