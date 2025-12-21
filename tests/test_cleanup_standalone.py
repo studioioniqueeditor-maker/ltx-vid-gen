@@ -4,7 +4,7 @@ import sys
 def test_old_files_removed():
     # List of files that should be removed
     files_to_remove = [
-        "handler.py",
+        # "handler.py", # RECREATED
         "generate_i2v.py",
         "base64_converter.py",
         "client_example.py",
