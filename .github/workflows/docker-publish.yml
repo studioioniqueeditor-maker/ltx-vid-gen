@@ -16,7 +16,8 @@ env:
 
 jobs:
   build:
-
+    # Use the environment name if it exists to access its secrets
+    environment: ${{ github.ref_name == 'rebuild-ltx' && 'rebuild-ltx' || 'main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
