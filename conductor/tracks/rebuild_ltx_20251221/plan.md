@@ -7,7 +7,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Environment & Clean Up' (Protocol in workflow.md)
 
 ## Phase 2: Model Acquisition & Network Volume
-- [ ] Task: Create `download_models.py` to fetch `ltx-video-2b-v0.9.1` (or the specific distilled version) weights and the `ltxv-2b-0.9.8-distilled-fp8.yaml` config to a local directory (simulating network volume).
+- [x] Task: Create `download_models.py` to fetch `ltx-video-2b-v0.9.1` (or the specific distilled version) weights and the `ltxv-2b-0.9.8-distilled-fp8.yaml` config to a local directory (simulating network volume). 5666b8b
 - [ ] Task: Verify model download integrity locally.
 - [ ] Task: Conductor - User Manual Verification 'Model Acquisition & Network Volume' (Protocol in workflow.md)
 
