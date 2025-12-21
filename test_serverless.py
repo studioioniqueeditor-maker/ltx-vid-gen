@@ -13,7 +13,6 @@ load_dotenv(".env.client")
 RUNPOD_API_KEY = os.getenv("RUNPOD_API_KEY")
 RUNPOD_ENDPOINT_ID = os.getenv("RUNPOD_ENDPOINT_ID")
 GCP_BUCKET_NAME = os.getenv("GCP_BUCKET_NAME")
-GCP_CREDENTIALS_PATH = os.getenv("GCP_CREDENTIALS_PATH", "oci_private_key.pem") # Assuming this is the key file
 
 if not all([RUNPOD_API_KEY, RUNPOD_ENDPOINT_ID, GCP_BUCKET_NAME]):
     print("Error: Missing required environment variables in .env.client")
@@ -23,16 +22,12 @@ if not all([RUNPOD_API_KEY, RUNPOD_ENDPOINT_ID, GCP_BUCKET_NAME]):
 RUNPOD_URL = f"https://api.runpod.ai/v2/{RUNPOD_ENDPOINT_ID}/runsync"
 
 def upload_to_gcp(local_file_path, destination_blob_name):
-    """Uploads a file to the bucket."""
+    """Uploads a file to the bucket using default credentials."""
     print(f"Uploading {local_file_path} to gs://{GCP_BUCKET_NAME}/{destination_blob_name}...")
     
-    # Initialize client (assumes GOOGLE_APPLICATION_CREDENTIALS is set or using default auth)
-    # If GCP_CREDENTIALS_PATH is set, explicitly use it
-    if os.path.exists(GCP_CREDENTIALS_PATH):
-        client = storage.Client.from_service_account_json(GCP_CREDENTIALS_PATH)
-    else:
-        # Fallback to default environment auth
-        client = storage.Client()
+    # Initialize client using Application Default Credentials (ADC)
+    # This will pick up authentication from 'gcloud auth application-default login'
+    client = storage.Client()
         
     bucket = client.bucket(GCP_BUCKET_NAME)
     blob = bucket.blob(destination_blob_name)
