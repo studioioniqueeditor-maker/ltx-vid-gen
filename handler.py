@@ -39,17 +39,30 @@ def init_model():
         try:
             print("--- Loading Model into VRAM ---")
             
-            # Check common mount paths
-            possible_paths = [
+            # 1. Check Env Var
+            env_model_path = os.environ.get("MODEL_PATH")
+            possible_paths = []
+            if env_model_path:
+                possible_paths.append(env_model_path)
+            
+            # 2. Add Common Paths
+            possible_paths.extend([
                 "/workspace/ltx-models",  # Manual mount path
-                "/runpod-volume/ltx-models", # Default RunPod Serverless mount if folder exists
-                "/runpod-volume" # If files are in root of volume
-            ]
+                "/runpod-volume/ltx-models", # Default RunPod Serverless mount
+                "/runpod-volume" # Root of volume
+            ])
             
             model_path = None
             for path in possible_paths:
                 if os.path.exists(path):
-                    # Check if it actually contains the model file we need
+                    # Check for indicators of the model
+                    # If it's the safetensors file itself (rare but possible if user pointed directly)
+                    if path.endswith(".safetensors"):
+                         model_path = os.path.dirname(path) # Diffusers needs the folder usually, unless loading single file
+                         # But our code expects a folder path in LTXVideoGenerator
+                         # Let's stick to folder detection
+                         pass
+
                     if os.path.exists(os.path.join(path, "model_index.json")) or \
                        os.path.exists(os.path.join(path, "ltxv-13b-0.9.8-distilled-fp8.safetensors")):
                         model_path = path
@@ -57,17 +70,23 @@ def init_model():
                         break
             
             if model_path is None:
-                # DEBUG: List directories to find where it is
-                print("DEBUG: Could not find model. Listing root directories:")
-                for root_dir in ["/workspace", "/runpod-volume"]:
-                    if os.path.exists(root_dir):
-                        print(f"Listing {root_dir}:")
-                        for f in os.listdir(root_dir):
-                            print(f" - {f}")
+                # DEBUG: Deep recursive listing to help user find where they put the files
+                print("DEBUG: Could not find model. performing DEEP SEARCH of directories:")
+                for root_start in ["/runpod-volume", "/workspace"]:
+                    if os.path.exists(root_start):
+                        print(f"--- Listing {root_start} (depth 2) ---")
+                        for root, dirs, files in os.walk(root_start):
+                            # limit depth
+                            depth = root[len(root_start):].count(os.sep)
+                            if depth > 2:
+                                continue
+                            print(f"{root}/")
+                            for f in files:
+                                print(f"  - {f}")
                     else:
-                        print(f"{root_dir} does not exist.")
+                        print(f"{root_start} does not exist.")
                 
-                # Fallback to original default to let it fail with specific error
+                # Fallback to default to trigger specific error
                 model_path = "/workspace/ltx-models"
 
             generator = LTXVideoGenerator(model_path=model_path)
