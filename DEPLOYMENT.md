@@ -12,11 +12,11 @@ Before deploying to RunPod, you must package the application and push it to a co
     ```
 2.  **Build the image** from the project root:
     ```bash
-    docker build -t your-username/ltx-vid-gen:latest .
+    docker build -t adityamaker/ltx-vid-gen:latest .
     ```
 3.  **Push the image** to the registry:
     ```bash
-    docker push your-username/ltx-vid-gen:latest
+    docker push adityamaker/ltx-vid-gen:latest
     ```
 
 ## 2. Prepare the RunPod Network Volume
@@ -34,7 +34,7 @@ Using a Network Volume ensures that model weights are persistent and shared acro
     - Run the download script provided in this repository:
       ```bash
       export MODEL_PATH="/workspace/ltx-models"
-      python3 download_models.py
+      python3 download_models_distilled.py
       ```
     - Verify the files were downloaded correctly:
       ```bash
