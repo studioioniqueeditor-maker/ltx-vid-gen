@@ -61,19 +61,14 @@ class LTXVideoGenerator:
 
         pipe.to("cuda")
         
-        # CRITICAL FIX: Force VAE to Float32 to prevent visual artifacts/static
-        # The VAE is sensitive to BF16 precision.
-        print("Forcing VAE to Float32 to prevent generation artifacts...")
+        # CRITICAL: VAE must be Float32 to avoid generation artifacts/noise
+        print("Ensuring VAE is in Float32...")
         pipe.vae = pipe.vae.to(dtype=torch.float32)
         
         # MEMORY OPTIMIZATIONS
         print("Enabling memory optimizations (VAE Tiling & Slicing)...")
         pipe.vae.enable_tiling()
         pipe.vae.enable_slicing()
-        
-        # Optional: Model CPU Offload (Drastically saves VRAM but slightly slower)
-        # Uncomment if still hitting OOM on <48GB cards
-        # pipe.enable_model_cpu_offload() 
         
         print("Model loaded successfully!")
         return pipe
@@ -91,41 +86,44 @@ class LTXVideoGenerator:
         
         print(f"Generating video...")
         print(f"  Prompt: {prompt}")
-        
-        # DEBUG: Inspect pipeline signature
-        import inspect
-        sig = inspect.signature(self.pipe.__call__)
-        print(f"DEBUG: Pipeline expects arguments: {list(sig.parameters.keys())}")
 
         try:
-            # Try standard 'image' argument first
-            if 'image' in sig.parameters:
-                video = self.pipe(
-                    image=image,
-                    prompt=prompt,
-                    negative_prompt=negative_prompt,
-                    width=width,
-                    height=height,
-                    num_frames=num_frames,
-                    num_inference_steps=num_steps,
-                    generator=torch.Generator().manual_seed(seed),
-                    output_type="pil"
-                ).frames[0]
-            elif 'media_items' in sig.parameters:
-                print("Using 'media_items' argument instead of 'image'...")
-                video = self.pipe(
-                    media_items=image,
-                    prompt=prompt,
-                    negative_prompt=negative_prompt,
-                    width=width,
-                    height=height,
-                    num_frames=num_frames,
-                    num_inference_steps=num_steps,
-                    generator=torch.Generator().manual_seed(seed),
-                    output_type="pil"
-                ).frames[0]
-            else:
-                raise ValueError(f"Pipeline does not accept 'image' or 'media_items'. Available args: {list(sig.parameters.keys())}")
+            # 1. Generate Latents (BFloat16 from Transformer)
+            # We request 'latents' so we can handle the VAE decode manually in Float32
+            output = self.pipe(
+                image=image,
+                prompt=prompt,
+                negative_prompt=negative_prompt,
+                width=width,
+                height=height,
+                num_frames=num_frames,
+                num_inference_steps=num_steps,
+                generator=torch.Generator().manual_seed(seed),
+                output_type="latents" # Return raw latents
+            )
+            
+            latents = output.frames[0] # [C, F, H, W] or [B, C, F, H, W]
+            
+            # 2. Manual Cast to Float32
+            # This fixes the "Input type (BF16) and bias type (Float) should be the same" error
+            print(f"DEBUG: Casting latents from {latents.dtype} to Float32...")
+            latents = latents.to(dtype=torch.float32)
+
+            # 3. Manual Decode with VAE
+            # Standard Diffusers VAE decoding logic:
+            # Latents are usually scaled; we must unscale them.
+            # LTX VAE uses the standard scaling factor (usually 0.18215 or similar)
+            if hasattr(self.pipe.vae.config, "scaling_factor"):
+                latents = latents / self.pipe.vae.config.scaling_factor
+
+            print("Decoding latents with VAE (Float32)...")
+            with torch.no_grad():
+                video_tensor = self.pipe.vae.decode(latents.unsqueeze(0)).sample
+
+            # 4. Post-process to PIL/Video
+            # LTX pipeline has a video_processor
+            print("Post-processing video...")
+            video = self.pipe.video_processor.postprocess_video(video_tensor, output_type="pil")[0]
 
         except Exception as e:
             raise Exception(f"Video generation failed: {e}")
