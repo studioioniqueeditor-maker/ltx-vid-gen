@@ -1,6 +1,6 @@
 # Plan: Rebuild LTX Video Service from Scratch (FP8 Distilled)
 
-## Phase 1: Environment & Clean Up
+## Phase 1: Environment & Clean Up [checkpoint: 4e531ad]
 - [x] Task: Clean up old implementation files (preserve `conductor/`, `.gitignore`, `README.md`). 69be6c5
 - [x] Task: Create `requirements.txt` with specific versions from `ltx-guide-nblm.md`. 249587a
 - [x] Task: Create `Dockerfile` based on `runpod/pytorch:2.2.0-py3.10-cuda12.1.1-devel-ubuntu22.04` (or similar matching CUDA 12.2 requirements) that clones the LTX-Video repo and installs dependencies. fc796ba
