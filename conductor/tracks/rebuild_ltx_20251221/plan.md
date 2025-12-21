@@ -11,7 +11,7 @@
 - [x] Task: Verify model download integrity locally. 7aa3baf
 - [ ] Task: Conductor - User Manual Verification 'Model Acquisition & Network Volume' (Protocol in workflow.md)
 
-## Phase 3: Inference Engine Implementation
+## Phase 3: Inference Engine Implementation [checkpoint: 5c68fb2]
 - [x] Task: Create `inference_engine.py` that interfaces with the cloned `LTX-Video` repository. b1d1dd0
     -   *Sub-task:* Implement `setup_pipeline()` to load the model from the specific path using `InferenceConfig`.
     -   *Sub-task:* Implement `generate_video()` accepting prompt, image path, and config overrides.
