@@ -2,59 +2,64 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ "lite-build" ]
-    tags: [ 'v*.*.*-lite' ]
-  workflow_dispatch:
+    branches: [ "main", "rebuild-ltx" ]
+    tags: [ 'v*.*.*' ]
+  pull_request:
+    branches: [ "main", "rebuild-ltx" ]
 
 env:
+  # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
-  IMAGE_NAME: adityamaker/ltx-vid-gen-lite
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
+
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
 
     steps:
-      - name: Free Disk Space (Manual)
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          sudo docker image prune --all --force
-
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Set up Buildx runner
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
-      - name: Log into Docker Hub
-        uses: docker/login-action@v2
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # Extract metadata (tags, labels) for Docker
+      # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
-          images: ${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=tag
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/lite-build' }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      # Build and push Docker image with Buildx (don't push on PR)
+      # https://github.com/docker/build-push-action
       - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+        id: build-and-push
+        uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64
           cache-from: type=gha
           cache-to: type=gha,mode=max

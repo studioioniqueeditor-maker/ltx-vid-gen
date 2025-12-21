@@ -4,20 +4,28 @@ This guide provides a detailed, step-by-step walkthrough for deploying the rebui
 
 ## 1. Build and Push the Docker Image
 
-Before deploying to RunPod, you must package the application and push it to a container registry (e.g., Docker Hub).
-
+### Option A: Manual Build
 1.  **Ensure Docker is installed** and you are logged into your registry:
     ```bash
     docker login
     ```
 2.  **Build the image** from the project root:
     ```bash
-    docker build -t adityamaker/ltx-vid-gen:latest .
+    docker build -t your-username/ltx-vid-gen:latest .
     ```
 3.  **Push the image** to the registry:
     ```bash
-    docker push adityamaker/ltx-vid-gen:latest
+    docker push your-username/ltx-vid-gen:latest
     ```
+
+### Option B: Automated CI/CD (GitHub Actions)
+This repository includes a GitHub Action workflow (`.github/workflows/docker-publish.yml`) that automatically builds and pushes the image on every push to `main` or `rebuild-ltx`.
+
+1.  Go to your GitHub Repository **Settings > Secrets and variables > Actions**.
+2.  Add the following Repository Secrets:
+    *   `DOCKER_USERNAME`: Your Docker Hub username.
+    *   `DOCKER_PASSWORD`: Your Docker Hub Access Token (recommended) or password.
+3.  Push your code to GitHub. The action will trigger and push the image to `docker.io/<your-github-username>/<repo-name>:latest` (or matching tag).
 
 ## 2. Prepare the RunPod Network Volume
 
