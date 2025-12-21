@@ -21,20 +21,32 @@ jobs:
     permissions:
       contents: read
       packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
       id-token: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Set up Buildx runner
+      - name: Debug Secrets
+        run: |
+          if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
+            echo "::error::DOCKER_USERNAME secret is missing or empty!"
+            exit 1
+          else
+            echo "DOCKER_USERNAME is set."
+          fi
+          if [ -z "${{ secrets.DOCKER_PASSWORD }}" ]; then
+            echo "::error::DOCKER_PASSWORD secret is missing or empty!"
+            exit 1
+          else
+            echo "DOCKER_PASSWORD is set."
+          fi
+
+      # Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Login against a Docker registry except on PR
-      # https://github.com/docker/login-action
+      # Login against a Docker registry
       - name: Log into registry ${{ env.REGISTRY }}
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
@@ -44,15 +56,14 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # Use the secret username to ensure we push to the correct account
+          images: ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/ltx-vid-gen
 
-      # Build and push Docker image with Buildx (don't push on PR)
-      # https://github.com/docker/build-push-action
+      # Build and push Docker image with Buildx
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v5
