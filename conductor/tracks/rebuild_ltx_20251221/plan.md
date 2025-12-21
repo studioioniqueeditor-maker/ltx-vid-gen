@@ -6,7 +6,7 @@
 - [x] Task: Create `Dockerfile` based on `runpod/pytorch:2.2.0-py3.10-cuda12.1.1-devel-ubuntu22.04` (or similar matching CUDA 12.2 requirements) that clones the LTX-Video repo and installs dependencies. fc796ba
 - [ ] Task: Conductor - User Manual Verification 'Environment & Clean Up' (Protocol in workflow.md)
 
-## Phase 2: Model Acquisition & Network Volume
+## Phase 2: Model Acquisition & Network Volume [checkpoint: aba9b53]
 - [x] Task: Create `download_models.py` to fetch `ltx-video-2b-v0.9.1` (or the specific distilled version) weights and the `ltxv-2b-0.9.8-distilled-fp8.yaml` config to a local directory (simulating network volume). 5666b8b
 - [x] Task: Verify model download integrity locally. 7aa3baf
 - [ ] Task: Conductor - User Manual Verification 'Model Acquisition & Network Volume' (Protocol in workflow.md)
