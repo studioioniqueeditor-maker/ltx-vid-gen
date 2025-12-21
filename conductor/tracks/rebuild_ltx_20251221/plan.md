@@ -29,6 +29,6 @@
 - [ ] Task: Conductor - User Manual Verification 'RunPod Handler Integration' (Protocol in workflow.md)
 
 ## Phase 5: Final Validation & Deployment Prep
-- [x] Task: Create `DEPLOYMENT.md` with specific instructions for setting up the RunPod Template and Network Volume. b09d821
+- [x] Task: Create `DEPLOYMENT.md` with specific instructions for setting up the RunPod Template and Network Volume. da60d1d
 - [x] Task: Final code review and linting. e888ed0
 - [ ] Task: Conductor - User Manual Verification 'Final Validation & Deployment Prep' (Protocol in workflow.md)
