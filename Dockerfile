@@ -19,7 +19,7 @@ RUN pip install -e .[inference]
 # Install handler dependencies
 WORKDIR /workspace
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt huggingface_hub
 
 # Set python path to include LTX-Video
 ENV PYTHONPATH="${PYTHONPATH}:/workspace/LTX-Video"
