@@ -1,18 +1,29 @@
 import os
 import sys
+import traceback
 
-# The LTX-Video repo will be cloned to /workspace/LTX-Video in the container.
-# Locally, we expect it to be in the path provided or in PYTHONPATH.
+# Force stdout flushing
+sys.stdout.reconfigure(line_buffering=True)
+
+print("DEBUG: importing ltx_video...")
 try:
+    # The LTX-Video repo will be cloned to /workspace/LTX-Video in the container.
+    # Locally, we expect it to be in the path provided or in PYTHONPATH.
     from ltx_video.inference import infer, InferenceConfig
-except ImportError:
-    print("WARNING: ltx_video module not found. Inference will not work without the LTX-Video repository.")
-    # Placeholders for unit tests
-    def infer(*args, **kwargs): pass
+    print("DEBUG: ltx_video imported successfully.")
+except ImportError as e:
+    print(f"WARNING: ltx_video module not found or failed to import: {e}")
+    traceback.print_exc()
+    # Placeholders for unit tests or failure mode
+    def infer(*args, **kwargs): raise ImportError("ltx_video not available")
     class InferenceConfig:
         def __init__(self, *args, **kwargs):
             for k, v in kwargs.items():
                 setattr(self, k, v)
+except Exception as e:
+    print(f"CRITICAL ERROR during ltx_video import: {e}")
+    traceback.print_exc()
+    raise e
 
 class LTXInferenceEngine:
     def __init__(self, repo_path="/workspace/LTX-Video", config_file="configs/ltxv-2b-0.9.8-distilled-fp8.yaml"):
