@@ -33,6 +33,12 @@ print(f"REPO_PATH: {REPO_PATH}")
 print(f"CONFIG_FILE: {CONFIG_FILE}")
 print(f"MODEL_PATH: {MODEL_PATH}")
 
+# Verify model path existence
+if not os.path.exists(MODEL_PATH):
+    print(f"WARNING: MODEL_PATH {MODEL_PATH} does not exist. Worker might fail inference.")
+else:
+    print(f"INFO: MODEL_PATH {MODEL_PATH} exists.")
+
 try:
     engine = LTXInferenceEngine(repo_path=REPO_PATH, config_file=CONFIG_FILE)
     print("SUCCESS: Inference Engine initialized.")
