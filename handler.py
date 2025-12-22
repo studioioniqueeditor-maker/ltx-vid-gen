@@ -14,8 +14,11 @@ try:
         # Create a dummy object or just set it to None if checking for existence
         class XPUCompat:
             def is_available(self): return False
+            def device_count(self): return 0
             def empty_cache(self): pass
             def synchronize(self): pass
+            def get_device_name(self, device=None): return "N/A"
+            def current_device(self): return 0
         torch.xpu = XPUCompat()
     print("INFO: Applied torch.xpu monkeypatch.")
 except ImportError:
