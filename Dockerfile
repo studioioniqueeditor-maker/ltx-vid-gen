@@ -16,11 +16,9 @@ RUN git clone https://github.com/Lightricks/LTX-Video.git
 WORKDIR /workspace/LTX-Video
 RUN pip install -e .[inference]
 
-# Install Q8 Kernels (Required for FP8 inference)
+# Clone Q8 Kernels (Install at runtime via start.sh)
 WORKDIR /workspace
 RUN git clone https://github.com/Lightricks/LTXVideo-Q8-Kernels.git
-WORKDIR /workspace/LTXVideo-Q8-Kernels
-RUN pip install -e .
 
 # Install handler dependencies
 WORKDIR /workspace
@@ -33,5 +31,8 @@ ENV PYTHONPATH="${PYTHONPATH}:/workspace/LTX-Video"
 # Copy application code
 COPY . .
 
-# Start the handler
-CMD ["python", "-u", "handler.py"]
+# Grant execution permissions to start script
+RUN chmod +x start.sh
+
+# Start using the shell script
+CMD ["./start.sh"]
