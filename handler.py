@@ -4,6 +4,22 @@ import base64
 import requests
 import uuid
 import shutil
+import sys
+import traceback
+
+# --- CRITICAL FIX: Monkeypatch torch.xpu for accelerate compatibility ---
+try:
+    import torch
+    if not hasattr(torch, "xpu"):
+        # Create a dummy object or just set it to None if checking for existence
+        class XPUCompat:
+            def is_available(self): return False
+        torch.xpu = XPUCompat()
+    print("INFO: Applied torch.xpu monkeypatch.")
+except ImportError:
+    pass
+# ------------------------------------------------------------------------
+
 from inference_engine import LTXInferenceEngine
 
 # Initialize the inference engine
@@ -12,7 +28,20 @@ REPO_PATH = os.getenv("LTX_REPO_PATH", "/workspace/LTX-Video")
 CONFIG_FILE = os.getenv("LTX_CONFIG_FILE", "configs/ltxv-2b-0.9.8-distilled-fp8.yaml")
 MODEL_PATH = os.getenv("MODEL_PATH", "/workspace/ltx-models")
 
-engine = LTXInferenceEngine(repo_path=REPO_PATH, config_file=CONFIG_FILE)
+print("--- WORKER STARTUP ---")
+print(f"REPO_PATH: {REPO_PATH}")
+print(f"CONFIG_FILE: {CONFIG_FILE}")
+print(f"MODEL_PATH: {MODEL_PATH}")
+
+try:
+    engine = LTXInferenceEngine(repo_path=REPO_PATH, config_file=CONFIG_FILE)
+    print("SUCCESS: Inference Engine initialized.")
+except Exception as e:
+    print(f"CRITICAL ERROR initializing engine: {e}")
+    traceback.print_exc()
+    # We allow the handler to start so we can report the error in the first request if needed, 
+    # but usually this means the worker is dead.
+    engine = None
 
 def download_image(url):
     print(f"Downloading image from: {url}")
