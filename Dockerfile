@@ -16,6 +16,12 @@ RUN git clone https://github.com/Lightricks/LTX-Video.git
 WORKDIR /workspace/LTX-Video
 RUN pip install -e .[inference]
 
+# Install Q8 Kernels (Required for FP8 inference)
+WORKDIR /workspace
+RUN git clone https://github.com/Lightricks/LTXVideo-Q8-Kernels.git
+WORKDIR /workspace/LTXVideo-Q8-Kernels
+RUN pip install -e .
+
 # Install handler dependencies
 WORKDIR /workspace
 COPY requirements.txt .
