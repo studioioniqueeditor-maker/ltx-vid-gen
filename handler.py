@@ -79,6 +79,18 @@ try:
 
         torch.xpu = XPUCompat()
     print("INFO: Applied torch.xpu monkeypatch.")
+
+    # --- Monkeypatch torch.distributed.device_mesh for older PyTorch versions ---
+    import torch.distributed
+    if not hasattr(torch.distributed, "device_mesh"):
+        # Create a dummy device_mesh module/function
+        class DeviceMeshCompat:
+            def init_device_mesh(self, *args, **kwargs): return None
+        torch.distributed.device_mesh = DeviceMeshCompat()
+        # Also patch init_device_mesh directly if expected there
+        torch.distributed.init_device_mesh = lambda *args, **kwargs: None
+    print("INFO: Applied torch.distributed.device_mesh monkeypatch.")
+
 except ImportError:
     pass
 # ------------------------------------------------------------------------
